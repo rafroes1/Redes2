@@ -1,5 +1,5 @@
 # redes2
-##Devido a formatação do GIT, recomento leitura no DOC entregue via UNIFOR ONLINE##
+#Devido a formatação do GIT, recomento leitura no DOC entregue via UNIFOR ONLINE#
 Universidade de Fortaleza - UNIFOR
 Trabalho referente a cadeira de redes II
 Professor: Bruno Lopes
