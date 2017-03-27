@@ -15,7 +15,7 @@ Instruções de compilação: (Ter python3.4 instalado na máquina)
   
   P.S: Funcionalidade de mensagem privada:
         -Para enviar mensagem privada de Rafa para Amanda, digitar no client de Rafa /d/Amanda&tilde;MENSAGEM AQUI
-        -Ou seja, /d/ é o comando de mensagem privada, seguido do nick do destinatario e um '&tilde;'
+        -Ou seja, /d/ é o comando de mensagem privada, seguido do nick do destinatario e um '&tilde;'(TIL)
 
 Funcionalidades opcionais:
   -GUI Servidor, classe ServerTCP.py
