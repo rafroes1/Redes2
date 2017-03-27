@@ -18,6 +18,6 @@ Instruções de compilação: (Ter python3.4 instalado na máquina)
         -Ou seja, /d/ é o comando de mensagem privada, seguido do nick do destinatario e um '~'
 
 Funcionalidades opcionais:
-  -GUI Servidor, classe ServidorTCP.py
+  -GUI Servidor, classe ServerTCP.py
   -GUI Cliente, classe ClientTCP.py
   -Envio de bytes no protocolo de comunicação, classe ProtocolPacker.py
