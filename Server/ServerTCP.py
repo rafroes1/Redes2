@@ -79,15 +79,12 @@ class ServerTCP(object):
                             for ch2 in self.clientes:
                                 nick = ch2.getNick()
                                 if nick == self.packer.unpack(packet)[1]:
-                                    ch2.getConn().close()
-                                    self.clientes.remove(ch2)
-
                                     for i in self.nickListBox.size():
                                         if nick == self.nickListBox.get(i):
                                             self.nickListBox.delete(i, i)
-                        else:
-                            if packet:
-                                self.broadcast(ch.getNick(), packet)
+
+                                    ch2.getConn().close()
+                                    self.clientes.remove(ch2)
                     except:
                         pass
 
