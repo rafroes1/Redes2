@@ -7,6 +7,8 @@ from Protocol.ProtocolPacker import ProtocolPacker
 
 class ClientTCP:
 
+    #TO DO: AO FECHAR CONEXAO PELO HOST, SERVIDOR DEVE ATUALIZAR A LISTA DE CLIENTES CONECTADOS
+
     id = itertools.count() #contador estatico //NAO TA FUNCIONANDO O CONTADOR :(
     def __init__(self, ip, porta, nick, master):
         self.master = master
