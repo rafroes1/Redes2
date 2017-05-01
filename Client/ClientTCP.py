@@ -75,7 +75,7 @@ class ClientTCP:
 
     def sendPacket(self, msg):
         if self.online:
-            self.socket.sendall(self.packer.newPacket(msg))
+            self.socket.sendall(self.packer.newRsaPacket(msg))
         else:
             self.master.destroy()
             sys.exit()
@@ -85,22 +85,31 @@ class ClientTCP:
             try:
                 packet = self.socket.recv(1024)
                 if packet:
-                    incNick = self.packer.unpack(packet)[1]
-                    incMsg = self.packer.unpack(packet)[5]
-                    begin_msg = incMsg[0:3]
-                    if begin_msg == '/d/':
-                        self.privateMsg(incNick, incMsg)
-                    elif begin_msg == '/r/':
-                        self.removedMsg()
-                    elif begin_msg == '/c/':
-                        self.clientConnectedMsg(incMsg)
-                    elif begin_msg == '/s/':
-                        self.packer.setSvPubKey(incMsg)
+                    #problema: pacote criptografado chega mas unpack n consegue dar decode ns MSG//RESOLVIDO!
+                    hs0 = packet[37:39].decode()
+                    hs0 = hs0.split('$')[0]
+                    if hs0 != '0':
+                        x = self.packer.unpack(packet)[5]
+                        if '/s/' == x[0:3]:
+                            self.packer.setSvPubKey(x)
+                        elif '/c/' == x[0:3]:
+                            self.clientConnectedMsg(x)
+                        else:
+                            pass
                     else:
-                        self.chat_text.configure(state='normal')
-                        self.chat_text.insert(END, incNick + ': ' + incMsg + '\n')
-                        self.chat_text.configure(state='disabled')
-                        print(incNick, ": ", incMsg)
+                        infos = self.packer.rsaUnpack(packet)
+                        incNick = infos[1]
+                        incMsg = infos[5]
+                        begin_msg = incMsg[0:3]
+                        if begin_msg == '/d/':
+                            self.privateMsg(incNick, incMsg)
+                        elif begin_msg == '/r/':
+                            self.removedMsg()
+                        else:
+                            self.chat_text.configure(state='normal')
+                            self.chat_text.insert(END, incNick + ': ' + incMsg + '\n')
+                            self.chat_text.configure(state='disabled')
+                            print(incNick, ": ", incMsg)
             except:
                 pass
         if not self.online:

@@ -72,15 +72,16 @@ class ServerTCP(object):
                     try:
                         conn = ch.getConn()
                         packet = conn.recv(1024)
-                        beg_msg = self.packer.unpack(packet)[5][0:3]
+                        infos = self.packer.rsaUnpack(packet)
+                        beg_msg = infos[5][0:3]
                         if beg_msg == '/d/':
-                            beg = self.packer.unpack(packet)[5].split('~')[0]
+                            beg = infos[5].split('~')[0]
                             private_nick = beg[3:len(beg)]
                             self.privateMsg(private_nick, packet)
                         elif beg_msg == '/e/':
                             for ch2 in self.clientes:
                                 nick = ch2.getNick()
-                                if nick == self.packer.unpack(packet)[1]:
+                                if nick == self.packer.rsaUnpack(packet)[1]:
                                     for i in self.nickListBox.size():
                                         if nick == self.nickListBox.get(i):
                                             self.nickListBox.delete(i, i)
@@ -88,7 +89,7 @@ class ServerTCP(object):
                                     ch2.getConn().close()
                                     self.clientes.remove(ch2)
                         else:
-                            self.broadcast(self.packer.unpack(packet)[1], packet)
+                            self.broadcast(packet)
                     except:
                         pass
 
@@ -107,17 +108,22 @@ class ServerTCP(object):
         for ch in self.clientes:
             try:
                 if ch.getNick() == nick:
+                    infos = self.packer.rsaUnpack(packet)
+                    customPacket = self.packer.newCustomPacket(infos[0], infos[1], infos[2], infos[3], infos[4], infos[5], ch.getPubKey())
                     conn = ch.getConn()
-                    conn.send(packet)
+                    conn.send(customPacket)
             except:
                 self.clientes.remove(ch)
 
-    def broadcast(self, nick, packet):
+    def broadcast(self, packet):
+        infos = self.packer.rsaUnpack(packet)
+        nick = infos[1]
         for ch in self.clientes:
             try:
                 if ch.getNick() != nick:
                     conn = ch.getConn()
-                    conn.send(packet)
+                    customPacket = self.packer.newCustomPacket(infos[0], infos[1], infos[2], infos[3], infos[4], infos[5], ch.getPubKey())
+                    conn.send(customPacket)
             except:
                 self.clientes.remove(ch)
 
