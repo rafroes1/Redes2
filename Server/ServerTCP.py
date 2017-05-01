@@ -52,11 +52,13 @@ class ServerTCP(object):
                 ip = self.packer.unpack(recv_pkt)[2]
                 self.nickListBox.insert(END, nick+': '+ip)
                 print(nick + ' conectado')
-                msg = self.packer.unpack(recv_pkt)[4]
+                hs = self.packer.unpack(recv_pkt)[4]
 
-                if msg == 'handshake':
+                if hs == '1':
                     newCliente = ClientHandler(id, nick, addr[0], addr[1], conn)
+                    newCliente.setPubKey(self.packer.unpack(recv_pkt)[5])
                     self.clientes.append(newCliente)
+                    self.svHandShake(conn)
                     self.clientConnected()
                 else:
                     pass
@@ -70,9 +72,9 @@ class ServerTCP(object):
                     try:
                         conn = ch.getConn()
                         packet = conn.recv(1024)
-                        beg_msg = self.packer.unpack(packet)[4][0:3]
+                        beg_msg = self.packer.unpack(packet)[5][0:3]
                         if beg_msg == '/d/':
-                            beg = self.packer.unpack(packet)[4].split('~')[0]
+                            beg = self.packer.unpack(packet)[5].split('~')[0]
                             private_nick = beg[3:len(beg)]
                             self.privateMsg(private_nick, packet)
                         elif beg_msg == '/e/':
@@ -85,6 +87,8 @@ class ServerTCP(object):
 
                                     ch2.getConn().close()
                                     self.clientes.remove(ch2)
+                        else:
+                            self.broadcast(self.packer.unpack(packet)[1], packet)
                     except:
                         pass
 
@@ -116,6 +120,9 @@ class ServerTCP(object):
                     conn.send(packet)
             except:
                 self.clientes.remove(ch)
+
+    def svHandShake(self, conn):
+        conn.send(self.packer.newSvHandShakePacket())
 
     def getClients(self):
         if len(self.clientes) > 0:

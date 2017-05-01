@@ -2,8 +2,8 @@ import socket
 import itertools
 import threading
 from tkinter import *
+from tkinter import messagebox
 from Protocol.ProtocolPacker import ProtocolPacker
-
 
 class ClientTCP:
 
@@ -12,6 +12,7 @@ class ClientTCP:
     id = itertools.count() #contador estatico //NAO TA FUNCIONANDO O CONTADOR :(
     def __init__(self, ip, porta, nick, master):
         self.master = master
+        self.master.protocol('WM_DELETE_WINDOW', self.onClosing)
         self.left_frame = Frame(self.master, width=200)
         self.left_frame.pack(side=LEFT)
 
@@ -53,23 +54,31 @@ class ClientTCP:
         self.chat_text.configure(state='normal')
         self.chat_text.insert(END, 'Voce' + ': ' + sending + '\n')
         self.chat_text.configure(state='disabled')
+        self.msg_entry.delete(0, 'end')
         self.sendPacket(sending)
 
     def handShake(self):
         self.socket.connect((self.ip, self.port))
-        self.sendPacket('handshake')
+        self.sendHandShakePacket()
 
     def closeConnection(self):
         self.sendPacket('/e/')
         self.master.destroy()
         sys.exit()
-        self.socket.close()
+
+    def sendHandShakePacket(self):
+        if self.online:
+            self.socket.sendall(self.packer.newHandShakePacket())
+        else:
+            self.master.destroy()
+            sys.exit()
 
     def sendPacket(self, msg):
         if self.online:
             self.socket.sendall(self.packer.newPacket(msg))
         else:
-            self.closeConnection()
+            self.master.destroy()
+            sys.exit()
 
     def receivePacket(self):
         while self.online:
@@ -77,7 +86,7 @@ class ClientTCP:
                 packet = self.socket.recv(1024)
                 if packet:
                     incNick = self.packer.unpack(packet)[1]
-                    incMsg = self.packer.unpack(packet)[4]
+                    incMsg = self.packer.unpack(packet)[5]
                     begin_msg = incMsg[0:3]
                     if begin_msg == '/d/':
                         self.privateMsg(incNick, incMsg)
@@ -85,6 +94,8 @@ class ClientTCP:
                         self.removedMsg()
                     elif begin_msg == '/c/':
                         self.clientConnectedMsg(incMsg)
+                    elif begin_msg == '/s/':
+                        self.packer.setSvPubKey(incMsg)
                     else:
                         self.chat_text.configure(state='normal')
                         self.chat_text.insert(END, incNick + ': ' + incMsg + '\n')
@@ -119,3 +130,8 @@ class ClientTCP:
         self.connected_clients.delete(0, END)
         for user in nameList:
             self.connected_clients.insert(END, user)
+
+    def onClosing(self):
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            self.online = False
+            self.closeConnection()
