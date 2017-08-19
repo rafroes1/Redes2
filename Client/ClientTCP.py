@@ -14,10 +14,10 @@ class ClientTCP:
         self.master = master
         self.master.protocol('WM_DELETE_WINDOW', self.onClosing)
         self.left_frame = Frame(self.master, width=200)
-        self.left_frame.pack(side=LEFT)
+        self.left_frame.grid(row=0, column=0, rowspan=5, columnspan=2)
 
         self.right_frame = Frame(self.master, width=300)
-        self.right_frame.pack(side=RIGHT)
+        self.right_frame.grid(row=0, column=2, rowspan=5, columnspan=3)
 
         #configurando frame da esquerda
         self.connected_clients = Listbox(self.left_frame, height=22)

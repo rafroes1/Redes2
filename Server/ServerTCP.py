@@ -14,18 +14,19 @@ class ServerTCP(object):
         self.clientes = []
         self.nickList = []
 
-        self.nickListBox = Listbox(self.frame)
+        self.nickListBox = Listbox(self.frame, width=50)
         self.nickListBox.pack()
 
         self.removeButton = Button(self.frame, text='Remove', command=self.removeClient)
         self.removeButton.pack()
 
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.bind(('127.0.0.1', 9876))
+        #self.server_socket.bind(('localhost', 6789))
+        self.server_socket.bind(('177.134.215.99', 6789))
         self.server_socket.listen(5)
         self.server_socket.setblocking(False)
 
-        self.packer = ProtocolPacker('999', 'Servidor', '127.0.0.1', 9876)
+        self.packer = ProtocolPacker('999', 'Servidor', '127.0.0.1', 6789)
 
         acptConn = threading.Thread(target=self.accCon)
         acptConn.daemon = True
