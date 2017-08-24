@@ -21,8 +21,9 @@ class ServerTCP(object):
         self.removeButton.pack()
 
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self.server_socket.bind(('localhost', 6789))
-        self.server_socket.bind(('177.134.215.99', 6789))
+        self.server_socket.bind(('localhost', 6789))
+        ##-------------------SET PUBLIC IP HERE -------------------##
+        #self.server_socket.bind(('177.207.60.132', 6789))
         self.server_socket.listen(5)
         self.server_socket.setblocking(False)
 
@@ -76,9 +77,14 @@ class ServerTCP(object):
                         infos = self.packer.rsaUnpack(packet)
                         beg_msg = infos[5][0:3]
                         if beg_msg == '/d/':
-                            beg = infos[5].split('~')[0]
-                            private_nick = beg[3:len(beg)]
-                            self.privateMsg(private_nick, packet)
+                            #beg = infos[5].split('~')[0]
+                            #private_nick = beg[3:len(beg)]
+                            #self.privateMsg(private_nick, packet)
+
+                            private_nick_list = infos[5].split('~')
+                            private_nick_list[0] = private_nick_list[0][3:len(private_nick_list[0])]
+                            private_nick_list.pop()
+                            self.sendPrivateMsg(private_nick_list, packet)
                         elif beg_msg == '/e/':
                             for ch2 in self.clientes:
                                 nick = ch2.getNick()
@@ -93,6 +99,12 @@ class ServerTCP(object):
                             self.broadcast(packet)
                     except:
                         pass
+
+    def sendPrivateMsg(self, private_nick_list, packet):
+        for ch in self.clientes:
+            for client in private_nick_list:
+                if ch.getNick() == client:
+                    self.privateMsg(client, packet)
 
     def clientConnected(self, ):
         msg = '/c/'

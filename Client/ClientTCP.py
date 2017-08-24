@@ -85,7 +85,6 @@ class ClientTCP:
             try:
                 packet = self.socket.recv(1024)
                 if packet:
-                    #problema: pacote criptografado chega mas unpack n consegue dar decode ns MSG//RESOLVIDO!
                     hs0 = packet[37:39].decode()
                     hs0 = hs0.split('$')[0]
                     if hs0 != '0':
@@ -117,8 +116,10 @@ class ClientTCP:
             sys.exit()
 
     def privateMsg(self,incNick, incMsg):
-        msg = incMsg.split('~')[1]
-        msg = '/Private/' + msg
+        #msg = incMsg.split('~')[1]
+        partionedMsg = incMsg.split('~')
+        #msg = '<Pivate>' + msg
+        msg = '<Private>' + partionedMsg[len(partionedMsg)-1]
         self.chat_text.configure(state='normal')
         self.chat_text.insert(END, incNick + ': ' + msg + '\n')
         self.chat_text.configure(state='disabled')
